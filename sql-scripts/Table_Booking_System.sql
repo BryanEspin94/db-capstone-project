@@ -221,3 +221,6 @@ DELIMITER ;
 CALL CancelBooking(4);
 
 SELECT * FROM Bookings; #BookingID 4 is cancelled
+
+
+
