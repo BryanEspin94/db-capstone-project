@@ -62,7 +62,15 @@ SELECT * FROM Orders;
 SELECT * FROM Order_Items;
 SELECT * FROM Order_Delivery_Status;
 
+INSERT INTO Bookings (CustomerID, TableNumber, BookingDate)
+VALUES 
+(1, 3, '2025-03-10'),  -- Same table as another booking (conflict test)
+(2, 3, '2025-03-10'),  -- Another conflicting booking
+(1, 2, '2025-03-12');  -- Customer 1 books again
 
+INSERT INTO Order_Items (OrderID, MenuID, Quantity, ItemPrice)
+VALUES 
+(1, 2, 3, 9.99),  -- 3x of menu item 2
+(1, 4, 2, 15.50); -- 2x of menu item 4
 
-
-
+SELECT * FROM Audit_Log ORDER BY ActionTimestamp DESC;

@@ -226,8 +226,52 @@ END $$
 
 DELIMITER ;
 
-DROP PROCEDURE SetOrderDelivered;
+DELIMITER $$
 
+/* 
+   PROCEDURE: SetOrderDelivered
+   DESCRIPTION: 
+   - Updates the status of an order to 'Delivered'.
+   - Logs the change in the Audit_Log table.
+   - Ensures historical tracking of status updates.
+   
+   PARAMETERS:
+   - order_id (INT): The ID of the order to be updated.
+   - performed_by (VARCHAR): The user who performed the update.
 
+   AUDIT LOGGING:
+   - Captures old status before updating.
+   - Records both old and new status in the Audit_Log table.
+*/
+
+CREATE PROCEDURE SetOrderDelivered(
+    IN order_id INT,            -- Order to be updated
+    IN performed_by VARCHAR(100) -- User performing the update
+)
+BEGIN
+    DECLARE old_status ENUM('New Order', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled');
+
+    /* Retrieve the current order status before making the update */
+    SELECT Status INTO old_status
+    FROM Order_Delivery_Status
+    WHERE OrderID = order_id;
+
+    /* Update order status to 'Delivered' */
+    UPDATE Order_Delivery_Status
+    SET Status = 'Delivered'
+    WHERE OrderID = order_id;
+
+    /* Log the status update in the Audit_Log table */
+    INSERT INTO Audit_Log (TableName, ActionType, RecordID, OldData, NewData, PerformedBy)
+    VALUES ('Order_Delivery_Status', 'UPDATE', order_id, 
+            CONCAT('Old Status: ', old_status), 
+            'New Status: Delivered', 
+            performed_by);
+
+    /* Return a confirmation message */
+    SELECT CONCAT('Order ', order_id, ' status updated to Delivered') AS Confirmation;
+END $$
+
+DELIMITER ;
 
 

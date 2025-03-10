@@ -165,39 +165,44 @@ CREATE PROCEDURE UpdateBooking(
     IN p_PerformedBy VARCHAR(100)
 )
 BEGIN
-    DECLARE bookingExists INT DEFAULT 0;
     DECLARE oldBookingDate DATE;
+    
+    -- Error Handling
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error: Unable to update booking' AS ErrorMessage;
+    END;
 
-    -- Check if booking exists
-    SELECT COUNT(*), BookingDate
-    INTO bookingExists, oldBookingDate
-    FROM Bookings
+    -- Start Transaction
+    START TRANSACTION;
+
+    -- Check if the booking exists and fetch old data
+    SELECT BookingDate INTO oldBookingDate 
+    FROM Bookings 
     WHERE BookingID = p_BookingID;
 
-    IF bookingExists > 0 THEN
-        -- Log Old Data
-        INSERT INTO Audit_Log (TableName, ActionType, RecordID, OldData, NewData, PerformedBy)
-        VALUES ('Bookings', 'UPDATE', p_BookingID, 
-                CONCAT('Old Date: ', oldBookingDate), 
-                CONCAT('New Date: ', p_NewBookingDate), 
-                p_PerformedBy);
+    -- Update booking date
+    UPDATE Bookings 
+    SET BookingDate = p_NewBookingDate 
+    WHERE BookingID = p_BookingID;
 
-        -- Perform update
-        UPDATE Bookings
-        SET BookingDate = p_NewBookingDate
-        WHERE BookingID = p_BookingID;
+    -- Log the update
+    INSERT INTO Audit_Log (TableName, ActionType, RecordID, OldData, NewData, PerformedBy)
+    VALUES ('Bookings', 'UPDATE', p_BookingID, 
+            CONCAT('Old Date: ', oldBookingDate), 
+            CONCAT('New Date: ', p_NewBookingDate), 
+            p_PerformedBy);
 
-        SELECT CONCAT('Booking ', p_BookingID, ' updated to ', p_NewBookingDate) AS UpdateStatus;
-    ELSE
-        SELECT CONCAT('No booking found with ID: ', p_BookingID) AS UpdateStatus;
-    END IF;
-
+    COMMIT;
+    SELECT CONCAT('Booking ', p_BookingID, ' updated to ', p_NewBookingDate) AS Confirmation;
 END $$
 
 
 DELIMITER ;
 
 CALL UpdateBooking(3, '2025-04-10');
+
 
 DELIMITER $$
 
@@ -220,6 +225,16 @@ CREATE PROCEDURE CancelBooking(
 BEGIN
     DECLARE bookingExists INT DEFAULT 0;
     DECLARE oldData TEXT;
+    
+    -- Error Handling
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error: Unable to cancel booking' AS ErrorMessage;
+    END;
+
+    -- Start Transaction
+    START TRANSACTION;
 
     -- Check if the booking exists
     SELECT COUNT(*), CONCAT('Date: ', BookingDate, ', Table: ', TableNumber, ', Customer: ', CustomerID)
@@ -235,8 +250,10 @@ BEGIN
         -- Perform delete
         DELETE FROM Bookings WHERE BookingID = p_BookingID;
 
+        COMMIT;
         SELECT CONCAT('Booking ', p_BookingID, ' has been canceled successfully.') AS CancelStatus;
     ELSE
+        ROLLBACK;
         SELECT CONCAT('No booking found with ID: ', p_BookingID) AS CancelStatus;
     END IF;
 
@@ -382,3 +399,7 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+CREATE INDEX idx_BookingDate ON Bookings (BookingDate);
+CREATE INDEX idx_Status ON Order_Delivery_Status (Status);
+SHOW INDEX FROM Bookings;
