@@ -224,26 +224,10 @@ BEGIN
     SELECT CONCAT('Order ', order_id, ' status updated to Out for Delivery') AS Confirmation;
 END $$
 
-
-/* 
-Procedure: SetOrderDelivered
-Description:
-    Updates the delivery status of a specified order to 'Delivered'.
-    This is used when the customer has received the order.
-Input:
-    - order_id (INT): The ID of the order to update.
-Output:
-    - Confirmation message indicating the status update.
-*/
-CREATE PROCEDURE SetOrderDelivered(IN order_id INT)
-BEGIN
-    UPDATE Order_Delivery_Status
-    SET Status = 'Delivered'
-    WHERE OrderID = order_id;
-
-    SELECT CONCAT('Order ', order_id, ' status updated to Delivered') AS Confirmation;
-END $$
-
 DELIMITER ;
+
+DROP PROCEDURE SetOrderDelivered;
+
+
 
 
