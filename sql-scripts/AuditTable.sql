@@ -91,6 +91,31 @@ SET Status = 'Out for Delivery'
 WHERE OrderID = 5;
 SELECT * FROM Audit_Log ORDER BY ActionTimestamp DESC;
 
+#Test 4
+INSERT INTO Order_Items (OrderID, MenuID, Quantity, ItemPrice)
+VALUES (6, 3, 2, 15.00);
+SELECT OrderID, TotalCost FROM Orders WHERE OrderID = 6;
 
+#Test 5
+INSERT INTO Orders (CustomerID, StaffID, OrderDate, TotalCost)
+VALUES (4, 3, '2025-03-12', 75.00);
+SELECT * FROM Audit_Log ORDER BY ActionTimestamp DESC;
 
+SELECT TABLE_NAME, INDEX_NAME, COLUMN_NAME, NON_UNIQUE
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = 'LittleLemonDB';
 
+CREATE INDEX idx_TableNumber ON Bookings (TableNumber);
+CREATE INDEX idx_ActionType ON Audit_Log (ActionType);
+CREATE INDEX idx_OrderStatus ON Order_Delivery_Status (Status);
+CREATE INDEX idx_OrderDate ON Orders (OrderDate);
+
+SHOW INDEX FROM Order_Delivery_Status;
+DROP INDEX idx_Status ON Order_Delivery_Status;
+
+SELECT TABLE_NAME, INDEX_NAME, COLUMN_NAME, NON_UNIQUE
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = 'LittleLemonDB';
+
+DROP INDEX MenuID_idx ON Order_Items;
+DROP INDEX OrderID_idx ON Order_Items;

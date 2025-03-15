@@ -403,3 +403,13 @@ DELIMITER ;
 CREATE INDEX idx_BookingDate ON Bookings (BookingDate);
 CREATE INDEX idx_Status ON Order_Delivery_Status (Status);
 SHOW INDEX FROM Bookings;
+
+-- Optimize joins on frequently used foreign keys
+CREATE INDEX idx_CustomerID ON Orders (CustomerID);
+CREATE INDEX idx_MenuID ON Order_Items (MenuID);
+CREATE INDEX idx_OrderID ON Order_Items (OrderID);
+
+SHOW INDEX FROM Bookings;
+SHOW INDEX FROM Order_Delivery_Status;
+SHOW INDEX FROM Orders;
+SHOW INDEX FROM Order_Items;
