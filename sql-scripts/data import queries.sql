@@ -254,18 +254,18 @@ VALUES
 -- Inserting booking data for the `Bookings` table
 INSERT INTO `Bookings` (CustomerID, BookingDate, TableID, Status)
 VALUES
-    (9, '2025-03-15', 1, 'New Booking'),  -- John Doe books Table 1
+    (9, '2025-03-14', 1, 'New Booking'),  -- John Doe books Table 1
     (10, '2025-03-15', 2, 'New Booking'), -- Jane Doe books Table 2
-    (11, '2025-03-16', 3, 'New Booking'), -- Bob Smith books Table 3
-    (12, '2025-03-16', 4, 'New Booking'), -- Alice Johnson books Table 4
-    (13, '2025-03-17', 5, 'New Booking'), -- Charlie Brown books Table 5
-    (14, '2025-03-17', 6, 'New Booking'), -- David Taylor books Table 6
-    (15, '2025-03-18', 7, 'New Booking'), -- Emily White books Table 7
-    (16, '2025-03-18', 8, 'New Booking'), -- Frank Miller books Table 8
-    (17, '2025-03-19', 9, 'New Booking'), -- Grace Wilson books Table 9
-    (18, '2025-03-19', 10, 'New Booking'), -- Hannah Moore books Table 10
-    (19, '2025-03-20', 11, 'New Booking'), -- John Doe books Table 11
-    (20, '2025-03-20', 12, 'New Booking'), -- Jane Doe books Table 12
+    (11, '2025-03-15', 3, 'New Booking'), -- Bob Smith books Table 3
+    (12, '2025-03-15', 4, 'New Booking'), -- Alice Johnson books Table 4
+    (13, '2025-03-15', 5, 'New Booking'), -- Charlie Brown books Table 5
+    (14, '2025-03-15', 6, 'New Booking'), -- David Taylor books Table 6
+    (15, '2025-03-15', 7, 'New Booking'), -- Emily White books Table 7
+    (16, '2025-03-15', 8, 'New Booking'), -- Frank Miller books Table 8
+    (17, '2025-03-15', 9, 'New Booking'), -- Grace Wilson books Table 9
+    (18, '2025-03-15', 10, 'New Booking'), -- Hannah Moore books Table 10
+    (19, '2025-03-15', 11, 'New Booking'), -- John Doe books Table 11
+    (20, '2025-03-15', 12, 'New Booking'), -- Jane Doe books Table 12
     (21, '2025-03-21', 13, 'New Booking'), -- Bob Smith books Table 13
     (22, '2025-03-21', 14, 'New Booking'), -- Alice Johnson books Table 14
     (23, '2025-03-22', 15, 'New Booking'), -- Charlie Brown books Table 15
@@ -306,23 +306,110 @@ VALUES
     (16, '2025-04-08', 50, 'New Booking'); -- Frank Miller books Table 50
 
 
-#Test insert order for John Doe - CustomerId 9 with waiter staffID 7
+#Insert orders for todays bookings - 15/03/25
 
-INSERT INTO Orders (CustomerID, StaffID, OrderDate, TotalCost)
-VALUES (9, 7, '2025-03-16', 0);
-   
-/*
-This creates an order for Customer 9 with StaffID 7
-The TotalCost is set to 0 initally but will be updateed later automatically
-*/
+INSERT INTO Orders (CustomerID, StaffID, OrderDate, TotalCost, BookingID)
+SELECT b.CustomerID, 7, CURDATE(), 0, b.BookingID
+FROM Bookings b
+WHERE b.BookingDate = CURDATE();
 
--- Insert 2 Spaghetti Bolognese and 1 Cheeseburger into the Order_Items table for OrderID 151
-INSERT INTO Order_Items (OrderID, MenuID, Quantity, ItemPrice)
-VALUES 
-    (152, 11, 2, 15.00),  -- 2 Spaghetti Bolognese (MenuID = 11)
-    (152, 13, 1, 12.00);  -- 1 Cheeseburger (MenuID = 13)
+#Insert Order items for the new orders
+
+CALL AddMultipleItemsToOrder(153, '12,14,18', '2,1,3');
+CALL AddMultipleItemsToOrder(154, '22,26,35', '1,2,1');
+CALL AddMultipleItemsToOrder(155, '41,45,52', '1,1,2');
+CALL AddMultipleItemsToOrder(156, '30,32,38', '1,3,2');
+CALL AddMultipleItemsToOrder(157, '19,25,43', '2,1,1');
+CALL AddMultipleItemsToOrder(158, '11,13,16', '1,1,1');
+CALL AddMultipleItemsToOrder(159, '29,31,39', '1,2,2');
+CALL AddMultipleItemsToOrder(160, '20,24,36', '3,1,1');
+CALL AddMultipleItemsToOrder(161, '27,33,47', '1,2,3');
+CALL AddMultipleItemsToOrder(162, '50,53,57', '1,1,2');
+CALL AddMultipleItemsToOrder(163, '42,44,56', '2,1,3');
 
 
+-- Loop through Order IDs 153 to 163 and update them to 'Delivered'
+CALL UpdateOrderStatus(153, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(154, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(155, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(156, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(157, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(158, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(159, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(160, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(161, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(162, 'Delivered', 'John Doe');
+CALL UpdateOrderStatus(163, 'Delivered', 'John Doe');
 
+
+#Inserting new orders for bookings made on 2025-03-16
+INSERT INTO Orders (CustomerID, StaffID, OrderDate, TotalCost, BookingID)
+SELECT 
+    b.CustomerID,
+    CASE 
+        WHEN b.BookingID % 2 = 0 THEN 13  -- Assign to Emily White
+        ELSE 25  -- Assign to Grace Wilson
+    END AS Assigned_Staff,
+    CURDATE() AS OrderDate,
+    0.00 AS TotalCost,
+    b.BookingID
+FROM Bookings b
+LEFT JOIN Orders o ON b.BookingID = o.BookingID
+WHERE b.BookingDate = '2025-03-16' AND o.OrderID IS NULL;
+
+
+#Adding order items for each order on 2025-03-26
+CALL AddMultipleItemsToOrder(168, '12,14,18', '2,1,1'); -- Caesar Salad (2x), Fried Chicken (1x), Grilled Salmon (1x)
+CALL AddMultipleItemsToOrder(169, '26,30,33', '1,2,1'); -- Chocolate Cake (1x), Cappuccino (2x), Latte (1x)
+CALL AddMultipleItemsToOrder(170, '45,50,52', '2,1,1'); -- Greek Salad (2x), Chicken Wings (1x), Beef Sliders (1x)
+CALL AddMultipleItemsToOrder(171, '41,43,48', '1,1,2'); -- Chicken Tacos (1x), Falafel (1x), Onion Rings (2x)
+CALL AddMultipleItemsToOrder(172, '56,57,58', '3,2,1'); -- Chicken Noodle Soup (3x), Beef Broth (2x), Cheese Platter (1x)
+
+CALL AddMultipleItemsToOrder(173, '12,35,47', '1,2,2'); -- Caesar Salad (1x), Vegetable Stir Fry (2x), Spring Rolls (2x)
+CALL AddMultipleItemsToOrder(174, '31,42,49', '2,1,3'); -- Espresso (2x), Beef Tacos (1x), Garlic Bread (3x)
+CALL AddMultipleItemsToOrder(175, '25,38,55', '1,1,2'); -- Apple Pie (1x), Beef Wellington (1x), Miso Soup (2x)
+CALL AddMultipleItemsToOrder(176, '50,41,45', '1,2,1'); -- Chicken Wings (1x), Chicken Tacos (2x), Greek Salad (1x)
+CALL AddMultipleItemsToOrder(177, '33,34,36', '1,1,1'); -- Latte (1x), Hot Chocolate (1x), Peking Duck (1x)
+
+CALL AddMultipleItemsToOrder(178, '44,51,58', '2,1,1'); -- Falafel (2x), Mozzarella Sticks (1x), Cheese Platter (1x)
+CALL AddMultipleItemsToOrder(179, '32,39,48', '1,1,1'); -- Latte (1x), Chicken Parmesan (1x), Onion Rings (1x)
+CALL AddMultipleItemsToOrder(180, '37,53,56', '1,1,2'); -- Lasagna (1x), Beef Sliders (1x), Chicken Noodle Soup (2x)
+CALL AddMultipleItemsToOrder(181, '19,20,22', '1,1,1'); -- Lemonade (1x), Iced Tea (1x), Beer (1x)
+CALL AddMultipleItemsToOrder(182, '43,57,54', '1,2,1'); -- Shawarma (1x), Beef Broth (2x), Tom Yum Soup (1x)
+
+CALL AddMultipleItemsToOrder(183, '12,14,18', '1,1,2'); -- Caesar Salad (1x), Fried Chicken (1x), Grilled Salmon (2x)
+CALL AddMultipleItemsToOrder(184, '26,30,33', '1,1,1'); -- Chocolate Cake (1x), Cappuccino (1x), Latte (1x)
+CALL AddMultipleItemsToOrder(185, '45,50,52', '2,1,1'); -- Greek Salad (2x), Chicken Wings (1x), Beef Sliders (1x)
+CALL AddMultipleItemsToOrder(186, '41,43,48', '1,1,2'); -- Chicken Tacos (1x), Falafel (1x), Onion Rings (2x)
+CALL AddMultipleItemsToOrder(187, '56,57,58', '3,2,1'); -- Chicken Noodle Soup (3x), Beef Broth (2x), Cheese Platter (1x)
+
+CALL AddMultipleItemsToOrder(188, '42,44,55', '1,2,2'); -- Beef Tacos (1x), Falafel (2x), Miso Soup (2x)
+CALL AddMultipleItemsToOrder(189, '25,38,58', '1,1,1'); -- Apple Pie (1x), Beef Wellington (1x), Cheese Platter (1x);
+
+
+#waiter updating each order as Delivered
+CALL UpdateOrderStatus(169, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(171, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(173, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(175, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(177, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(179, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(181, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(183, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(185, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(187, 'Delivered', 'Emily White');
+CALL UpdateOrderStatus(189, 'Delivered', 'Emily White');
+
+CALL UpdateOrderStatus(168, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(170, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(172, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(174, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(176, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(178, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(180, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(182, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(184, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(186, 'Delivered', 'Grace Wilson');
+CALL UpdateOrderStatus(188, 'Delivered', 'Grace Wilson');
 
     
