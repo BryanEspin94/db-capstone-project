@@ -55,6 +55,7 @@ The project includes stored procedures and triggers for automating tasks and mai
 |---|---|
 | `AddValidBooking` | Adds a booking while ensuring the table is available. |
 | `CancelAllBookingsForDate` | Cancels all bookings for a given date. |
+| `CancelBooking` | Cancels a specific booking by updating its status. |
 | `ChangeBookingTable` | Moves a booking to a different table if available. |
 | `CheckBooking` | Checks if a table is booked on a given date. |
 | `FindAvailableTables` | Finds all tables available on a specific date. |
