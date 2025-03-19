@@ -99,3 +99,60 @@ SHOW TRIGGERS LIKE 'Order_Items';
 
 SHOW CREATE TABLE Order_Items;
 
+
+DELIMITER $$
+
+CREATE PROCEDURE CancelBooking(
+    IN booking_id INT,
+    IN performed_by VARCHAR(100)  -- Track who performed the action
+)
+BEGIN
+    DECLARE bookingExists INT;
+    DECLARE bookingStatus VARCHAR(20);
+    DECLARE errorMessage VARCHAR(255);
+
+    -- Start a transaction for atomicity
+    START TRANSACTION;
+
+    -- Check if the booking exists and retrieve its status
+    SELECT COUNT(*), Status INTO bookingExists, bookingStatus
+    FROM Bookings
+    WHERE BookingID = booking_id;
+
+    -- If booking does not exist, call ErrorHandler and exit
+    IF bookingExists = 0 THEN
+        SET errorMessage = 'Error: Booking ID not found';
+        CALL ErrorHandler(errorMessage, performed_by);
+    END IF;
+
+    -- Prevent cancelling an already cancelled booking
+    IF bookingStatus = 'Cancelled' THEN
+        SET errorMessage = 'Error: Booking is already cancelled';
+        CALL ErrorHandler(errorMessage, performed_by);
+    END IF;
+
+    -- Cancel any associated orders by setting their status to 'Cancelled'
+    UPDATE Orders o
+    JOIN Order_Delivery_Status ods ON o.OrderID = ods.OrderID
+    SET ods.Status = 'Cancelled'
+    WHERE o.BookingID = booking_id;
+
+    -- Mark the booking as cancelled
+    UPDATE Bookings
+    SET Status = 'Cancelled'
+    WHERE BookingID = booking_id;
+
+    -- Log the cancellation in Audit_Log
+    INSERT INTO Audit_Log (TableName, ActionType, RecordID, OldData, NewData, PerformedBy)
+    VALUES ('Bookings', 'UPDATE', booking_id, 'Status: New Booking', 'Status: Cancelled', performed_by);
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Return success message
+    SELECT CONCAT('Booking ID ', booking_id, ' has been successfully cancelled.') AS Message;
+END$$
+
+DELIMITER ;
+
+
