@@ -97,3 +97,5 @@ DELIMITER ;
  
 SHOW TRIGGERS LIKE 'Order_Items';
 
+SHOW CREATE TABLE Order_Items;
+
