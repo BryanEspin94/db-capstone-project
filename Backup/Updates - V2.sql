@@ -155,4 +155,69 @@ END$$
 
 DELIMITER ;
 
+DROP PROCEDURE AddValidBooking;
 
+DELIMITER $$
+
+CREATE PROCEDURE AddValidBooking(
+    IN p_BookingDate DATE,      -- The date the booking is requested for
+    IN p_TableID INT,           -- The table ID to be booked
+    IN p_CustomerID INT,        -- The ID of the customer making the booking
+    IN p_PerformedBy VARCHAR(100) -- The user performing the booking
+)
+BEGIN
+    DECLARE bookingExists INT DEFAULT 0;  -- Track if the table is already booked
+    DECLARE newBookingID INT;             -- Store the new booking ID after insertion
+    DECLARE tableValid INT DEFAULT 0;     -- Track if the table exists
+    DECLARE errorMessage VARCHAR(255);    -- Store error messages
+
+    -- Start a transaction to ensure atomicity
+    START TRANSACTION;
+
+    -- Check if the table exists in the Tables table
+    SELECT COUNT(*)
+    INTO tableValid
+    FROM Tables
+    WHERE TableID = p_TableID;
+
+    -- If the table does not exist, rollback
+    IF tableValid = 0 THEN
+        SET errorMessage = CONCAT('Booking declined: Table ', p_TableID, ' does not exist.');
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errorMessage;
+    ELSE
+        -- Check if the table is already booked on the given date
+        SELECT COUNT(*)
+        INTO bookingExists
+        FROM Bookings
+        WHERE BookingDate = p_BookingDate AND TableID = p_TableID;
+
+        -- If the table is already booked, rollback
+        IF bookingExists > 0 THEN
+            SET errorMessage = CONCAT('Booking declined: Table ', p_TableID, ' is already booked on ', p_BookingDate);
+            ROLLBACK;
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errorMessage;
+        ELSE
+            -- If available, insert the booking into the Bookings table
+            INSERT INTO Bookings (BookingDate, TableID, CustomerID, Status)
+            VALUES (p_BookingDate, p_TableID, p_CustomerID, 'New Booking');
+
+            -- Get the ID of the newly inserted booking
+            SET newBookingID = LAST_INSERT_ID();
+
+            -- Log the insertion action in the Audit_Log table
+            INSERT INTO Audit_Log (TableName, ActionType, RecordID, NewData, PerformedBy)
+            VALUES ('Bookings', 'INSERT', newBookingID, 
+                    CONCAT('Date: ', p_BookingDate, ', Table: ', p_TableID, ', Customer: ', p_CustomerID), 
+                    p_PerformedBy);
+
+            -- Commit the transaction, making all changes permanent
+            COMMIT;
+
+            -- Return a success message
+            SELECT CONCAT('Booking confirmed for Table ', p_TableID, ' on ', p_BookingDate) AS BookingStatus;
+        END IF;
+    END IF;
+END $$
+
+DELIMITER ;
