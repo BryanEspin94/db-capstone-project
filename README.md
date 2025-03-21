@@ -14,28 +14,31 @@ This repository contains the database design, SQL scripts, and documentation for
 ```
 little-lemon-database/
 ├── er-diagram/           # Contains ER diagram snapshots and design files
-├── sql-scripts/           # SQL scripts for table creation, inserts, views, procedures, and queries
-├── reports/                # Placeholder for any generated reports (if needed in future)
-├── Backup/                # Stores previous versions of scripts and database exports
-├── README.md               # This project overview file
+├── sql-scripts/          # SQL scripts for table creation, inserts, procedures, and queries
+├── reports/              # Placeholder for any generated reports (if needed in future)
+├── Backup/               # Stores previous versions of scripts and database exports
+├── Python Scripts/       # Jupyter notebooks and Python scripts for database testing
+├── README.md             # This project overview file
 ```
 
 ## 📂 Files Explained
 | Folder | Description |
 |---|---|
 | `er-diagram/` | Contains the entity-relationship diagram (ERD) that defines the data model for Little Lemon. |
-| `sql-scripts/` | Contains all SQL scripts related to this project, including:<br> - Table creation <br> - Data insertion <br> - Views, procedures, and queries. |
+| `sql-scripts/` | Contains all SQL scripts related to this project, including:<br> - Table creation <br> - Data insertion <br> - Stored procedures and queries. |
 | `reports/` | Placeholder directory to store any analytical reports derived from the data. |
 | `Backup/` | Stores previous versions of database scripts and schemas for reference. |
+| `Python Scripts/` | Contains Jupyter notebooks and Python scripts for testing stored procedures and queries. |
 | `README.md` | This file — provides project background and navigation. |
 
 ## 🌟 Key Features Implemented
 ✅ Fully normalized relational model (1NF, 2NF, 3NF)  
-✅ Use of **views** to create virtual summary tables  
-✅ Use of **stored procedures** to manage order statuses  
+✅ Use of **stored procedures** to manage order statuses and bookings  
 ✅ Use of **prepared statements** for secure querying (prevents SQL injection)  
 ✅ Git version control for project tracking and collaboration  
-✅ Triggers to maintain data integrity and automate actions
+✅ Triggers to maintain data integrity and automate actions  
+✅ New procedure: `CancelBooking` – allows for cancelling individual bookings  
+✅ Enhanced audit logging using comprehensive trigger coverage  
 
 ## 📘 Database Design Highlights
 The database consists of the following tables:
@@ -51,28 +54,34 @@ The database consists of the following tables:
 The project includes stored procedures and triggers for automating tasks and maintaining consistency:
 
 ### **Stored Procedures**
-| Procedure Name | Description |
-|---|---|
-| `AddValidBooking` | Adds a booking while ensuring the table is available. |
+| Procedure Name            | Description |
+|--------------------------|-------------|
+| `AddValidBooking`         | Adds a booking while ensuring the table is available. |
 | `CancelAllBookingsForDate` | Cancels all bookings for a given date. |
-| `CancelBooking` | Cancels a specific booking by updating its status. |
-| `ChangeBookingTable` | Moves a booking to a different table if available. |
-| `CheckBooking` | Checks if a table is booked on a given date. |
-| `FindAvailableTables` | Finds all tables available on a specific date. |
-| `UpdateBooking` | Updates an existing booking date. |
-| `UpdateOrderStatus` | Changes the status of an order and logs changes. |
+| `CancelBooking`           | Cancels a specific booking by updating its status and logging the action. |
+| `ChangeBookingTable`      | Moves a booking to a different table if available. |
+| `CheckBooking`            | Checks if a table is booked on a given date. |
+| `ErrorHandler`            | Handles and logs errors during transactional procedures. |
+| `FindAvailableTables`     | Finds all tables available on a specific date. |
+| `GetBookingsForDate`      | Returns all bookings for a specific date. |
+| `GetMaxQuantity`          | Returns the highest quantity ordered across all items. |
+| `UpdateBooking`           | Updates an existing booking's date with logging. |
+| `UpdateOrderStatus`       | Updates the status of an order and logs the change. |
+| `AddMultipleItemsToOrder` | Adds multiple items to an order based on comma-separated inputs. |
 
 ### **Triggers**
-| Trigger Name | Description |
-|---|---|
-| `log_delete_booking` | Logs when a booking is deleted. |
-| `log_insert_booking` | Logs when a new booking is made. |
-| `log_update_booking` | Logs changes to existing bookings. |
-| `log_insert_order` | Logs when a new order is placed. |
+| Trigger Name              | Description |
+|--------------------------|-------------|
+| `log_delete_booking`      | Logs when a booking is deleted. |
+| `log_insert_booking`      | Logs when a new booking is made. |
+| `log_update_booking`      | Logs changes to existing bookings. |
+| `log_insert_order`        | Logs when a new order is placed. |
 | `log_update_order_status` | Logs when an order status changes. |
-| `log_insert_order_items` | Logs when new order items are added. |
-| `log_delete_order_items` | Logs when order items are removed. |
-| `update_order_total` | Updates the total cost of an order when new items are added. |
+| `after_order_cancelled`   | Automatically cancels bookings if an order is marked as 'Cancelled'. |
+| `log_insert_order_items`  | Logs when new order items are added. |
+| `log_delete_order_items`  | Logs when order items are removed. |
+| `log_update_order_items`  | Logs updates to order item quantity or price. |
+| `update_order_total`      | Automatically updates the total cost of an order when new items are added. |
 
 ## 🛠️ Work in Progress: Database Setup Instructions
 The setup instructions for deploying this database are currently **a work in progress**. Future updates will include step-by-step setup instructions, including:
