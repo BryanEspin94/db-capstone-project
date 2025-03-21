@@ -1,19 +1,19 @@
-# 📊 Little Lemon Database Project
+# Little Lemon Database Project
 
-## 📚 Project Overview
+## Project Overview
 This repository contains the database design, SQL scripts, and documentation for the **Little Lemon Database**, created as part of the **Meta Database Engineer Capstone Project** on Coursera.
 
-**Little Lemon** is a growing restaurant that needs a robust relational database to manage its daily operations, including:
-- 📅 Customer bookings
-- 🛍️ Order management
-- 📦 Delivery status tracking
-- 🍽️ Menu items and pricing
-- 💼 Staff information
+**Little Lemon** is a growing restaurant that requires a robust relational database to manage its daily operations, including:
+- Customer bookings
+- Order management
+- Delivery status tracking
+- Menu items and pricing
+- Staff information
 
-## 🏰 Project Structure
+## Project Structure
 ```
 little-lemon-database/
-├── er-diagram/           # Contains ER diagram snapshots and design files
+├── er-diagram/           # ER diagram snapshots and design files
 ├── sql-scripts/          # SQL scripts for table creation, inserts, procedures, and queries
 ├── reports/              # Placeholder for any generated reports (if needed in future)
 ├── Backup/               # Stores previous versions of scripts and database exports
@@ -21,28 +21,28 @@ little-lemon-database/
 ├── README.md             # This project overview file
 ```
 
-## 📂 Files Explained
+## Files Explained
 | Folder | Description |
 |---|---|
-| `er-diagram/` | Contains the entity-relationship diagram (ERD) that defines the data model for Little Lemon. |
-| `sql-scripts/` | Contains all SQL scripts related to this project, including:<br> - Table creation <br> - Data insertion <br> - Stored procedures and queries. |
-| `reports/` | Placeholder directory to store any analytical reports derived from the data. |
+| `er-diagram/` | Contains the entity-relationship diagram (ERD) defining the data model for Little Lemon. |
+| `sql-scripts/` | Includes all SQL scripts related to this project, including table creation, data insertion, stored procedures, and queries. |
+| `reports/` | Placeholder directory for storing any analytical reports derived from the data. |
 | `Backup/` | Stores previous versions of database scripts and schemas for reference. |
 | `Python Scripts/` | Contains Jupyter notebooks and Python scripts for testing stored procedures and queries. |
-| `README.md` | This file — provides project background and navigation. |
+| `README.md` | This file, providing project background and navigation. |
 
-## 🌟 Key Features Implemented
-✅ Fully normalized relational model (1NF, 2NF, 3NF)  
-✅ Use of **stored procedures** to manage order statuses and bookings  
-✅ Use of **prepared statements** for secure querying (prevents SQL injection)  
-✅ Git version control for project tracking and collaboration  
-✅ Triggers to maintain data integrity and automate actions  
-✅ New procedure: `CancelBooking` – allows for cancelling individual bookings  
-✅ Enhanced audit logging using comprehensive trigger coverage  
+## Key Features Implemented
+- ✅ Fully normalized relational model (1NF, 2NF, 3NF)  
+- ✅ Stored procedures to manage order statuses and bookings  
+- ✅ Prepared statements for secure querying (prevents SQL injection)  
+- ✅ Git version control for project tracking and collaboration  
+- ✅ Triggers to maintain data integrity and automate actions  
+- ✅ New procedure: `CancelBooking` – allows canceling individual bookings  
+- ✅ Enhanced audit logging using comprehensive trigger coverage  
 
-## 📘 Database Design Highlights
+## Database Design Highlights
 The database consists of the following tables:
-- **Customer_Details**: Stores customer information such as name, phone, and email.
+- **Customer_Details**: Stores customer information (name, phone, email).
 - **Bookings**: Captures table reservations.
 - **Staff_Information**: Holds staff roles and salaries.
 - **Menu**: Lists all available food and drink items.
@@ -50,10 +50,10 @@ The database consists of the following tables:
 - **Order_Items**: Records items in each order, along with quantity and pricing.
 - **Order_Delivery_Status**: Tracks delivery progress for each order (e.g., Preparing, Delivered, Cancelled).
 
-## 🔄 Stored Procedures & Triggers
-The project includes stored procedures and triggers for automating tasks and maintaining consistency:
+## Stored Procedures & Triggers
+This project includes stored procedures and triggers for automating tasks and maintaining consistency:
 
-### **Stored Procedures**
+### Stored Procedures
 | Procedure Name            | Description |
 |--------------------------|-------------|
 | `AddValidBooking`         | Adds a booking while ensuring the table is available. |
@@ -62,14 +62,15 @@ The project includes stored procedures and triggers for automating tasks and mai
 | `ChangeBookingTable`      | Moves a booking to a different table if available. |
 | `CheckBooking`            | Checks if a table is booked on a given date. |
 | `ErrorHandler`            | Handles and logs errors during transactional procedures. |
-| `FindAvailableTables`     | Finds all tables available on a specific date. |
+| `FindAvailableTables`     | Finds all available tables on a specific date. |
 | `GetBookingsForDate`      | Returns all bookings for a specific date. |
 | `GetMaxQuantity`          | Returns the highest quantity ordered across all items. |
 | `UpdateBooking`           | Updates an existing booking's date with logging. |
 | `UpdateOrderStatus`       | Updates the status of an order and logs the change. |
 | `AddMultipleItemsToOrder` | Adds multiple items to an order based on comma-separated inputs. |
+| `CreateOrder`             | Creates a new order based on a booking and assigns a staff member. |
 
-### **Triggers**
+### Triggers
 | Trigger Name              | Description |
 |--------------------------|-------------|
 | `log_delete_booking`      | Logs when a booking is deleted. |
@@ -83,8 +84,8 @@ The project includes stored procedures and triggers for automating tasks and mai
 | `log_update_order_items`  | Logs updates to order item quantity or price. |
 | `update_order_total`      | Automatically updates the total cost of an order when new items are added. |
 
-## 🛠️ Work in Progress: Database Setup Instructions
-The setup instructions for deploying this database are currently **a work in progress**. Future updates will include step-by-step setup instructions, including:
+## Work in Progress: Database Setup Instructions
+The setup instructions for deploying this database are currently **a work in progress**. Future updates will include:
 - Database schema creation
 - Data population
 - Running stored procedures
@@ -92,11 +93,11 @@ The setup instructions for deploying this database are currently **a work in pro
 
 Stay tuned for upcoming documentation!
 
-## 👤 Author
+## Author
 👨‍💻 **Bryan Espin**  
 🎓 Created as part of the **Meta Database Engineer Capstone Project**
 
-## 📚 License
+## License
 This project is for **educational purposes** only and was built as part of a coursework requirement for the Meta Database Engineer Professional Certificate.
 
 
